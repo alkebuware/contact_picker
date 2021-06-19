@@ -61,7 +61,7 @@ class ContactPicker private constructor(private val pickContext: PickContext, pr
         block(data)
     }
 
-    private fun processDisplayNamed(intent: Intent?, dataName: String, dataProcessor: (Cursor, Activity, Uri) -> Map<String, String>) {
+    private fun processDisplayNamed(intent: Intent?, dataName: String, dataProcessor: (Cursor, Activity, Uri) -> Map<String, String?>) {
         val processor = { cursor: Cursor, activity: Activity, uri: Uri ->
             buildDisplayNamed(cursor, dataName, dataProcessor(cursor, activity, uri))
         }
@@ -85,8 +85,8 @@ class ContactPicker private constructor(private val pickContext: PickContext, pr
         val contactId = cursor.getLong(cursor.getColumnIndex(ContactsContract.Contacts._ID))
         var name: Map<String, String>? = null
         val instantMessengers = mutableListOf<Map<String, String>>()
-        val emails = mutableListOf<Map<String, String>>()
-        val phones = mutableListOf<Map<String, String>>()
+        val emails = mutableListOf<Map<String, String?>>()
+        val phones = mutableListOf<Map<String, String?>>()
         val addresses = mutableListOf<Map<String, Any>>()
         var note: String? = null
         var company: String? = null
@@ -211,22 +211,22 @@ class ContactPicker private constructor(private val pickContext: PickContext, pr
         return mapOf("firstName" to firstName, "middleName" to middleName, "nickname" to nickname, "lastName" to lastName)
     }
 
-    private fun buildDisplayNamed(cursor: Cursor, dataName: String, data: Map<String, String>): Map<String, Any> {
+    private fun buildDisplayNamed(cursor: Cursor, dataName: String, data: Map<String, String?>): Map<String, Any> {
         val fullName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Identity.DISPLAY_NAME))
         return mapOf("fullName" to fullName, dataName to data)
     }
 
-    private fun buildPhoneNumber(cursor: Cursor, activity: Activity, @Suppress("UNUSED_PARAMETER") data: Uri): Map<String, String> {
+    private fun buildPhoneNumber(cursor: Cursor, activity: Activity, @Suppress("UNUSED_PARAMETER") data: Uri): Map<String, String?> {
         val number = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER))
         return buildLabeledItem(cursor, activity, ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.LABEL, "phoneNumber", number)
     }
 
-    private fun buildEmailAddress(cursor: Cursor, activity: Activity, @Suppress("UNUSED_PARAMETER") data: Uri): Map<String, String> {
+    private fun buildEmailAddress(cursor: Cursor, activity: Activity, @Suppress("UNUSED_PARAMETER") data: Uri): Map<String, String?> {
         val address = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA))
         return buildLabeledItem(cursor, activity, ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.LABEL, "email", address)
     }
 
-    private fun buildLabeledItem(cursor: Cursor, activity: Activity, typeContract: String, labelContract: String, dataName: String, data: String): Map<String, String> {
+    private fun buildLabeledItem(cursor: Cursor, activity: Activity, typeContract: String, labelContract: String, dataName: String, data: String?): Map<String, String?> {
         val type = cursor.getInt(cursor.getColumnIndex(typeContract))
         val customLabel = cursor.getString(cursor.getColumnIndex(labelContract))
         val label = ContactsContract.CommonDataKinds.Email.getTypeLabel(activity.resources, type, customLabel) as String
